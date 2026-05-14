@@ -1,0 +1,5 @@
+Open this URL, not index.html:
+
+http://localhost:4321
+
+If it does not work, double-click START.command first.

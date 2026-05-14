@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Between Us — Say hard things without making it worse</title>
+  <meta name="description" content="Between Us helps teens, young adults, and parents rewrite tense messages so hard conversations are more likely to be heard, not escalated." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f8f3;
+      --surface: rgba(255, 255, 255, .82);
+      --surface-strong: #ffffff;
+      --ink: #0d1720;
+      --muted: #475569;
+      --soft: #dbe6df;
+      --line: rgba(13, 23, 32, .15);
+      --brand: #2563ff;
+      --brand-dark: #123c9c;
+      --mint: #16c784;
+      --blue: #0ea5e9;
+      --violet: #6d5df6;
+      --amber: #f5b700;
+      --shadow: 0 24px 70px rgba(8, 22, 34, .20);
+      --radius-xl: 34px;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --ease: cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 5%, rgba(37, 99, 255, .18), transparent 34%),
+        radial-gradient(circle at 88% 15%, rgba(22, 199, 132, .18), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(245, 183, 0, .12), transparent 35%),
+        var(--bg);
+      min-height: 100dvh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, textarea, select, input { font: inherit; }
+    .wrap { width: min(1160px, calc(100% - 36px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(246, 248, 243, .82);
+      border-bottom: 1px solid rgba(16,20,23,.07);
+    }
+    .nav-inner { height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.03em; }
+    .mark { width: 38px; height: 38px; border-radius: 14px; background: linear-gradient(135deg, var(--brand), var(--mint)); display: grid; place-items: center; box-shadow: 0 10px 28px rgba(37,99,255,.30); }
+    .mark svg { width: 22px; height: 22px; fill: white; }
+    .nav-links { display: flex; gap: 22px; color: var(--muted); font-size: 14px; font-weight: 600; }
+    .nav-cta { display: flex; align-items: center; gap: 10px; }
+
+    .btn {
+      border: 0;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
+    }
+    .btn:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px solid rgba(37,99,255,.34); outline-offset: 3px; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { color: white; background: linear-gradient(135deg, #0d1720, #123c9c); box-shadow: 0 14px 34px rgba(13,23,32,.24); }
+    .btn-primary:hover { box-shadow: 0 18px 46px rgba(18,60,156,.28); }
+    .btn-soft { background: rgba(255,255,255,.62); border: 1px solid var(--line); color: var(--ink); }
+
+    .signal-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: .88;
+    }
+    .signal-bg svg { width: 100%; height: 100%; display: block; }
+    .signal-line {
+      fill: none;
+      stroke-linecap: round;
+      stroke-dasharray: 10 18;
+      animation: signalFlow 18s linear infinite;
+    }
+    .signal-line.one { stroke: rgba(37,99,255,.30); stroke-width: 3; animation-duration: 16s; }
+    .signal-line.two { stroke: rgba(158,197,255,.34); stroke-width: 2.4; animation-duration: 22s; animation-direction: reverse; }
+    .signal-line.three { stroke: rgba(22,199,132,.28); stroke-width: 2; animation-duration: 28s; }
+    .signal-node { animation: nodePulse 3.8s var(--ease) infinite alternate; transform-origin: center; }
+    .signal-node.parent { fill: rgba(255,255,255,.82); stroke: rgba(16,20,23,.14); }
+    .signal-node.teen { fill: rgba(16,20,23,.94); stroke: rgba(255,255,255,.62); }
+    .signal-node.bridge { fill: url(#bridgeGradient); filter: drop-shadow(0 14px 24px rgba(37,99,255,.24)); }
+    .signal-word { fill: rgba(103,95,87,.22); font: 800 13px Inter, sans-serif; letter-spacing: .04em; animation: wordFloat 8s var(--ease) infinite alternate; }
+    .signal-word.alt { animation-delay: -3s; }
+    @keyframes signalFlow { to { stroke-dashoffset: -280; } }
+    @keyframes nodePulse { from { transform: scale(.96); opacity: .72; } to { transform: scale(1.08); opacity: 1; } }
+    @keyframes wordFloat { from { transform: translateY(0); opacity: .18; } to { transform: translateY(-14px); opacity: .36; } }
+
+    .hero { position: relative; overflow: hidden; padding: 78px 0 54px; }
+    .hero-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 1.02fr .98fr; gap: 42px; align-items: center; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.64); border: 1px solid var(--line); color: var(--brand-dark); font-size: 13px; font-weight: 800; }
+    .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 8px rgba(37,99,255,.13); }
+    h1 { font-size: clamp(44px, 7vw, 82px); line-height: .92; letter-spacing: -.075em; margin: 24px 0 22px; }
+    .serif { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; letter-spacing: -.035em; font-style: italic; }
+    .lead { font-size: clamp(18px, 2vw, 22px); line-height: 1.55; color: var(--muted); max-width: 640px; margin: 0 0 28px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .hero-main-cta { min-height: 52px; padding-inline: 24px; font-size: 15px; }
+    .hero-mechanic { display: inline-flex; margin: 14px 0 0; padding: 10px 13px; border-radius: 999px; background: rgba(255,255,255,.66); border: 1px solid var(--line); color: #1f2937; font-size: 14px; font-weight: 850; box-shadow: 0 12px 28px rgba(8,22,34,.07); }
+    .trust { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; color: var(--muted); font-size: 13px; font-weight: 650; }
+    .trust span { padding: 8px 11px; border: 1px solid rgba(16,20,23,.11); background: rgba(255,255,255,.38); border-radius: 999px; }
+
+    .phone-stage { position: relative; min-height: 620px; display: grid; place-items: center; }
+    .orb { position: absolute; border-radius: 999px; filter: blur(.2px); animation: float 8s var(--ease) infinite alternate; }
+    .orb.one { width: 190px; height: 190px; background: rgba(37,99,255,.16); left: 20px; top: 40px; }
+    .orb.two { width: 150px; height: 150px; background: rgba(14,165,233,.20); right: 10px; bottom: 80px; animation-delay: -2s; }
+    @keyframes float { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-24px) rotate(10deg); } }
+    .phone {
+      width: min(430px, 100%);
+      border-radius: 46px;
+      padding: 14px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(255,255,255,.86);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+      transform: rotate(1.5deg);
+    }
+    .screen { background: #f8fbf6; border-radius: 36px; padding: 22px; border: 1px solid rgba(16,20,23,.10); overflow: hidden; }
+    .screen-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .traffic { display: flex; gap: 7px; }
+    .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--soft); }
+    .timeline { display: grid; gap: 14px; }
+    .bubble { padding: 15px 16px; border-radius: 20px; line-height: 1.42; font-size: 14px; box-shadow: 0 10px 25px rgba(16,20,23,.07); animation: rise .7s var(--ease) both; }
+    .bubble.raw { background: #e8efeb; color: #334155; border-bottom-left-radius: 6px; }
+    .bubble.ai { background: #0d1720; color: white; border-bottom-right-radius: 6px; animation-delay: .16s; }
+    .bubble.tip { background: #e9fff5; color: #0f5132; border: 1px solid rgba(35,87,71,.12); animation-delay: .28s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    .mini-label { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 7px; }
+
+    .relationship-stage { position: relative; min-height: 620px; display: grid; place-items: center; }
+    .bridge-card {
+      width: min(520px, 100%);
+      position: relative;
+      border-radius: 42px;
+      padding: 22px;
+      background: rgba(255,255,255,.62);
+      border: 1px solid rgba(255,255,255,.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+      overflow: hidden;
+    }
+    .bridge-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 15% 15%, rgba(37,99,255,.20), transparent 34%), radial-gradient(circle at 90% 80%, rgba(14,165,233,.18), transparent 34%); pointer-events: none; }
+    .bridge-title { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .bridge-title strong { font-size: 15px; letter-spacing: -.02em; }
+    .bridge-title span { color: var(--muted); font-size: 12px; font-weight: 850; }
+    .people-map { position: relative; display: grid; grid-template-columns: 1fr 76px 1fr; gap: 12px; align-items: center; }
+    .person-card { position: relative; z-index: 1; min-height: 210px; border-radius: 30px; padding: 16px; display: grid; align-content: space-between; border: 1px solid rgba(16,20,23,.11); box-shadow: 0 18px 45px rgba(12,25,32,.08); }
+    .person-card.young { background: linear-gradient(160deg, #0d1720, #142635); color: white; transform: rotate(-1.5deg); }
+    .person-card.parent { background: #f8fbf6; color: var(--ink); transform: rotate(1.5deg); }
+    .person-label { display: flex; align-items: center; gap: 8px; font-weight: 900; letter-spacing: -.02em; }
+    .face { width: 40px; height: 40px; border-radius: 16px; display: grid; place-items: center; font-size: 18px; background: rgba(255,255,255,.14); }
+    .person-card.parent .face { background: rgba(37,99,255,.13); }
+    .mini-bubble { border-radius: 18px; padding: 12px; line-height: 1.35; font-size: 13px; font-weight: 650; }
+    .young .mini-bubble { background: rgba(255,255,255,.12); color: rgba(255,255,255,.86); }
+    .parent .mini-bubble { background: rgba(16,20,23,.07); color: #334155; }
+    .translator-core { position: relative; z-index: 2; display: grid; place-items: center; gap: 8px; }
+    .translator-ring { width: 76px; height: 76px; border-radius: 28px; display: grid; place-items: center; background: linear-gradient(135deg, var(--brand), var(--mint)); color: white; box-shadow: 0 18px 44px rgba(37,99,255,.30); font-weight: 950; font-size: 22px; }
+    .translator-core small { color: var(--brand-dark); font-weight: 950; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; text-align: center; }
+    .bridge-line { position: absolute; left: 25%; right: 25%; top: 48%; height: 3px; border-radius: 999px; background: linear-gradient(90deg, rgba(37,99,255,.24), var(--brand), rgba(14,165,233,.34)); z-index: 0; }
+    .translation-strip { position: relative; margin-top: 16px; display: grid; gap: 10px; }
+    .translation-strip .bubble { animation-delay: .12s; }
+    .tag-cloud { position: relative; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .tag-cloud span { border-radius: 999px; padding: 8px 10px; background: rgba(255,255,255,.68); border: 1px solid rgba(16,20,23,.10); color: var(--muted); font-size: 12px; font-weight: 850; }
+
+    .conversation-scene {
+      position: relative;
+      width: min(560px, 100%);
+      min-height: 620px;
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+    }
+    .scene-glow { position: absolute; inset: 9% 3%; border-radius: 42px; background: radial-gradient(circle at 48% 45%, rgba(255,255,255,.92), rgba(245,183,0,.12) 38%, transparent 70%); filter: blur(2px); z-index: -2; }
+    .family-arc {
+      position: absolute;
+      inset: 22px 4px 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,20,23,.10);
+      background: linear-gradient(135deg, rgba(255,255,255,.3), rgba(255,255,255,0));
+      z-index: -1;
+    }
+    .family-arc::before, .family-arc::after { content: ''; position: absolute; inset: 42px; border-radius: inherit; border: 1px dashed rgba(37,99,255,.22); animation: orbitSpin 26s linear infinite; }
+    .family-arc::after { inset: 84px; border-color: rgba(14,165,233,.22); animation-direction: reverse; animation-duration: 34s; }
+    @keyframes orbitSpin { to { transform: rotate(360deg); } }
+    .phone-card {
+      position: absolute;
+      width: 190px;
+      border-radius: 34px;
+      padding: 10px;
+      background: rgba(255,255,255,.66);
+      border: 1px solid rgba(255,255,255,.9);
+      box-shadow: 0 24px 58px rgba(12,25,32,.18);
+      backdrop-filter: blur(18px);
+      z-index: 2;
+    }
+    .phone-card.teen-phone { left: 0; top: 72px; transform: rotate(-7deg); }
+    .phone-card.parent-phone { right: 0; bottom: 72px; transform: rotate(6deg); }
+    .phone-screen { min-height: 250px; border-radius: 26px; padding: 14px; background: #f8fbf6; border: 1px solid rgba(16,20,23,.10); display: grid; align-content: space-between; gap: 10px; }
+    .phone-card.teen-phone .phone-screen { background: linear-gradient(180deg, #09131b, #132b3a); color: white; }
+    .phone-person { display: flex; align-items: center; gap: 8px; font-weight: 950; font-size: 13px; letter-spacing: -.02em; }
+    .person-dot { width: 28px; height: 28px; border-radius: 12px; display: grid; place-items: center; background: var(--brand); color: white; font-size: 11px; font-weight: 950; }
+    .parent-phone .person-dot { background: #0d1720; }
+    .phone-msg { border-radius: 17px; padding: 10px 11px; font-size: 12.5px; line-height: 1.35; font-weight: 700; }
+    .teen-phone .phone-msg.raw { background: rgba(255,255,255,.12); color: rgba(255,255,255,.88); border-bottom-left-radius: 5px; }
+    .parent-phone .phone-msg.raw { background: rgba(16,20,23,.08); color: #334155; border-bottom-right-radius: 5px; }
+    .phone-msg.good { background: #e9fff5; color: #0f5132; border: 1px solid rgba(35,87,71,.12); }
+    .translation-engine {
+      position: relative;
+      z-index: 4;
+      width: 230px;
+      min-height: 230px;
+      border-radius: 44px;
+      padding: 18px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      background: linear-gradient(145deg, rgba(16,20,23,.97), rgba(19,35,50,.96));
+      color: white;
+      box-shadow: 0 32px 90px rgba(16,20,23,.28);
+      overflow: hidden;
+    }
+    .translation-engine::before { content: ''; position: absolute; inset: -50%; background: conic-gradient(from 90deg, transparent, rgba(37,99,255,.48), rgba(22,199,132,.42), rgba(14,165,233,.34), transparent); animation: engineSpin 9s linear infinite; }
+    .translation-engine::after { content: ''; position: absolute; inset: 3px; border-radius: 41px; background: linear-gradient(145deg, #0d1720, #132332); }
+    @keyframes engineSpin { to { transform: rotate(360deg); } }
+    .engine-inner { position: relative; z-index: 1; display: grid; gap: 10px; justify-items: center; }
+    .engine-mark { width: 76px; height: 76px; border-radius: 28px; display: grid; place-items: center; background: linear-gradient(135deg, var(--brand), var(--mint)); box-shadow: 0 18px 46px rgba(37,99,255,.34); font-size: 34px; font-weight: 950; }
+    .engine-inner strong { font-size: 22px; letter-spacing: -.04em; }
+    .engine-inner span { color: rgba(255,255,255,.66); font-size: 12px; font-weight: 800; line-height: 1.4; }
+    .message-packet {
+      position: absolute;
+      z-index: 3;
+      max-width: 160px;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 11.5px;
+      line-height: 1.25;
+      font-weight: 850;
+      box-shadow: 0 18px 45px rgba(12,25,32,.15);
+      animation: packetFloat 5.5s var(--ease) infinite alternate;
+    }
+    .message-packet.bad-left { left: 130px; top: 250px; background: #fff1bf; color: #6b4a00; transform: rotate(-5deg); }
+    .message-packet.bad-right { right: 104px; bottom: 252px; background: #eaf2ff; color: #123c9c; transform: rotate(5deg); animation-delay: -1.4s; }
+    .message-packet.good-top { right: 82px; top: 118px; background: #e9fff5; color: #0f5132; transform: rotate(4deg); animation-delay: -2.2s; }
+    .message-packet.good-bottom { left: 46px; bottom: 112px; background: #e9fff5; color: #0f5132; transform: rotate(-4deg); animation-delay: -3.2s; }
+    @keyframes packetFloat { from { translate: 0 0; } to { translate: 0 -14px; } }
+    .flow-arrow { position: absolute; z-index: 1; width: 180px; height: 76px; opacity: .46; }
+    .flow-arrow path { fill: none; stroke: rgba(37,99,255,.40); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 9 13; animation: signalFlow 10s linear infinite; }
+    .flow-arrow.left-in { left: 126px; top: 218px; transform: rotate(9deg); }
+    .flow-arrow.right-out { right: 118px; top: 208px; transform: rotate(-12deg) scaleX(-1); }
+    .flow-arrow.right-in { right: 128px; bottom: 208px; transform: rotate(190deg); }
+    .flow-arrow.left-out { left: 126px; bottom: 210px; transform: rotate(170deg) scaleX(-1); }
+    .scene-caption { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); width: max-content; max-width: calc(100% - 28px); border-radius: 999px; padding: 10px 13px; background: rgba(255,255,255,.72); border: 1px solid rgba(16,20,23,.11); color: var(--muted); font-size: 12px; font-weight: 900; box-shadow: 0 12px 30px rgba(12,25,32,.08); }
+
+    section { padding: 78px 0; }
+    .section-title { max-width: 760px; margin-bottom: 30px; }
+    .section-title h2 { font-size: clamp(34px, 5vw, 58px); line-height: 1; letter-spacing: -.055em; margin: 0 0 14px; }
+    .section-title p { color: var(--muted); font-size: 18px; line-height: 1.6; margin: 0; }
+
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card { background: rgba(255,255,255,.58); border: 1px solid rgba(16,20,23,.11); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 18px 50px rgba(12,25,32,.08); }
+    .card-icon { width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; background: #0d1720; color: white; margin-bottom: 18px; }
+    .card h3 { margin: 0 0 10px; font-size: 20px; letter-spacing: -.025em; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.55; }
+
+    .demo { background: rgba(255,255,255,.48); border-block: 1px solid rgba(16,20,23,.08); }
+    .demo-grid { display: grid; grid-template-columns: minmax(0, .86fr) minmax(430px, 1.14fr); gap: 24px; align-items: start; }
+    .demo-compose { display: grid; gap: 18px; position: sticky; top: 96px; }
+    .panel { background: rgba(255,255,255,.78); border: 1px solid rgba(16,20,23,.12); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow); }
+    .composer-panel { position: relative; overflow: hidden; display: grid; gap: 18px; }
+    .composer-panel::before { content: ''; position: absolute; inset: 0 0 auto; height: 5px; background: linear-gradient(90deg, var(--brand), var(--blue), var(--mint)); opacity: .95; }
+    .chat-top { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+    .chat-kicker { color: var(--brand-dark); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .11em; margin-bottom: 8px; }
+    .chat-title { margin: 0; font-size: 24px; letter-spacing: -.045em; line-height: 1.05; }
+    .chat-subtitle { margin: 8px 0 0; color: var(--muted); line-height: 1.45; font-size: 14px; }
+    .mini-switch { display: inline-flex; padding: 4px; border-radius: 999px; background: rgba(16,20,23,.07); border: 1px solid rgba(16,20,23,.10); }
+    .seg { border: 0; background: transparent; color: var(--muted); min-height: 36px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 850; cursor: pointer; }
+    .seg.active { background: #0d1720; color: white; box-shadow: 0 8px 20px rgba(16,20,23,.18); }
+    .chat-card { border-radius: 26px; background: #f8fbf6; border: 1px solid rgba(16,20,23,.11); padding: 16px; display: grid; gap: 14px; }
+    .dm-row { display: flex; gap: 10px; align-items: flex-end; }
+    .avatar { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 14px; display: grid; place-items: center; background: #0d1720; color: white; font-weight: 900; font-size: 13px; }
+    .dm-bubble { width: 100%; border-radius: 22px; padding: 14px; background: white; border: 1px solid rgba(16,20,23,.12); box-shadow: 0 12px 30px rgba(12,25,32,.08); }
+    .dm-bubble.ai { background: #0d1720; color: white; border-color: transparent; }
+    .dm-bubble textarea { width: 100%; min-height: 172px; resize: vertical; border: 0; outline: 0; background: transparent; padding: 0; color: inherit; line-height: 1.55; font-size: 16px; }
+    .dm-bubble textarea::placeholder { color: rgba(103,95,87,.7); }
+    .bubble-label { margin: 0 0 10px; color: var(--muted); font-size: 12px; font-weight: 850; }
+    .dm-bubble.ai .bubble-label { color: rgba(255,255,255,.62); }
+    .quick-chips, .tone-chips, .result-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { border: 1px solid rgba(16,20,23,.12); background: rgba(255,255,255,.68); color: #1f2937; min-height: 38px; padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 800; cursor: pointer; transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease); }
+    .chip:hover { transform: translateY(-1px); }
+    .chip.active { background: #0d1720; color: white; border-color: #0d1720; }
+    .chip.subtle { background: rgba(255,255,255,.4); color: var(--muted); }
+    .stealth-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stealth-fields details { grid-column: 1 / -1; border-radius: 18px; background: rgba(255,255,255,.5); border: 1px solid rgba(16,20,23,.10); padding: 10px 12px; }
+    .stealth-fields summary { cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 850; }
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    label { display: grid; gap: 8px; color: #1f2937; font-size: 13px; font-weight: 800; }
+    select, textarea, input {
+      width: 100%;
+      border: 1px solid rgba(16,20,23,.16);
+      background: rgba(255,255,255,.86);
+      border-radius: 16px;
+      padding: 13px 14px;
+      color: var(--ink);
+    }
+    .composer-actions { display: grid; gap: 10px; }
+    .helper-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .output { display: grid; gap: 14px; scroll-margin-top: 96px; }
+    .output-shell { position: relative; overflow: hidden; min-height: 480px; background: rgba(255,255,255,.82); }
+    .output-shell::before { content: ''; position: absolute; inset: 0 0 auto; height: 5px; background: linear-gradient(90deg, #0d1720, var(--brand), var(--mint)); opacity: .92; }
+    .output-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .output-title { margin: 0; font-size: 22px; letter-spacing: -.035em; }
+    .output-subtitle { margin: 5px 0 0; color: var(--muted); line-height: 1.45; font-size: 14px; }
+    .status-pill { flex: 0 0 auto; border-radius: 999px; padding: 8px 11px; background: rgba(37,99,255,.12); color: var(--brand-dark); font-size: 12px; font-weight: 850; border: 1px solid rgba(37,99,255,.20); }
+    .result-stack { display: grid; gap: 14px; }
+    .result-card { background: #f8fbf6; border: 1px solid rgba(16,20,23,.11); border-radius: 22px; padding: 18px; animation: cardIn .34s var(--ease) both; }
+    .result-card:nth-child(2) { animation-delay: .04s; }
+    .result-card:nth-child(3) { animation-delay: .08s; }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .result-card.dark { background: #0d1720; color: white; border-color: transparent; }
+    .result-card h4 { margin: 0 0 9px; font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--brand-dark); }
+    .result-card.dark h4 { color: #9ee7ff; }
+    .result-card p, .result-card ul { margin: 0; line-height: 1.6; color: inherit; }
+    .result-card ul { padding-left: 20px; color: var(--muted); }
+    .result-card.dark ul { color: rgba(255,255,255,.78); }
+    .message-preview { font-size: 18px; line-height: 1.55; letter-spacing: -.01em; }
+    .copy-toast { min-height: 18px; color: var(--brand-dark); font-size: 12px; font-weight: 850; }
+    .skeleton { position: relative; overflow: hidden; min-height: 88px; }
+    .skeleton::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); animation: shimmer 1.2s infinite; }
+    @keyframes shimmer { to { transform: translateX(100%); } }
+
+    .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }
+    .price { position: relative; overflow: hidden; }
+    .price.featured { background: #0d1720; color: white; transform: translateY(-10px); }
+    .price.featured p, .price.featured li { color: rgba(255,255,255,.72); }
+    .price h3 { font-size: 22px; margin: 0 0 8px; }
+    .amount { font-size: 42px; font-weight: 850; letter-spacing: -.05em; margin: 18px 0; }
+    .amount small { font-size: 14px; color: currentColor; opacity: .68; font-weight: 650; }
+    .price ul { padding-left: 19px; margin: 18px 0 0; display: grid; gap: 10px; color: var(--muted); }
+    .badge { position: absolute; top: 18px; right: 18px; border-radius: 999px; padding: 7px 10px; background: rgba(255,255,255,.13); color: #bcecff; font-size: 12px; font-weight: 850; }
+    .checkout-btn { width: 100%; margin-top: 20px; background: rgba(255,255,255,.92); }
+
+    .final { text-align: center; padding-bottom: 92px; }
+    .final-card { border-radius: 42px; padding: 58px 22px; background: linear-gradient(135deg, rgba(255,255,255,.82), rgba(232,244,255,.72), rgba(233,255,245,.58)); border: 1px solid rgba(16,20,23,.10); box-shadow: var(--shadow); }
+    .final h2 { font-size: clamp(36px, 6vw, 70px); line-height: .96; letter-spacing: -.06em; margin: 0 auto 18px; max-width: 800px; }
+    .final p { max-width: 620px; margin: 0 auto 26px; color: var(--muted); font-size: 18px; line-height: 1.6; }
+    footer { padding: 24px 0 46px; color: var(--muted); font-size: 13px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; border-top: 1px solid rgba(16,20,23,.11); padding-top: 24px; }
+
+    @media (max-width: 880px) {
+      .nav-links { display: none; }
+      .hero { padding-top: 48px; }
+      .hero-grid, .demo-grid { grid-template-columns: 1fr; }
+      .demo-compose { position: static; }
+      .phone-stage, .relationship-stage { min-height: auto; padding-top: 18px; }
+      .phone { transform: none; }
+      .people-map { grid-template-columns: 1fr; }
+      .bridge-line, .translator-core small { display: none; }
+      .translator-ring { width: 54px; height: 54px; border-radius: 20px; margin: -4px 0; }
+      .person-card.young, .person-card.parent { transform: none; min-height: 150px; }
+      .cards, .pricing { grid-template-columns: 1fr; }
+      .price.featured { transform: none; }
+    }
+    @media (max-width: 560px) {
+      .wrap { width: min(100% - 24px, 1160px); }
+      .nav-inner { height: 64px; }
+      .nav-cta .btn-soft { display: none; }
+      .hero { padding: 36px 0 42px; }
+      .signal-bg { opacity: .58; }
+      .signal-bg svg { transform: scale(1.22); transform-origin: 58% 22%; }
+      .signal-line { stroke-dasharray: 6 18; }
+      .signal-word { display: none; }
+      h1 { font-size: 42px; }
+      .lead { font-size: 17px; }
+      .hero-mechanic { border-radius: 18px; line-height: 1.35; font-size: 13px; }
+      .hero-main-cta { width: 100%; }
+      .hero-actions .btn-soft { flex: 1; }
+      .relationship-stage { padding-top: 8px; }
+      .conversation-scene { min-height: 560px; }
+      .phone-card { width: 162px; }
+      .phone-card.teen-phone { left: 0; top: 28px; transform: rotate(-4deg); }
+      .phone-card.parent-phone { right: 0; bottom: 42px; transform: rotate(4deg); }
+      .phone-screen { min-height: 210px; padding: 12px; }
+      .translation-engine { width: 184px; min-height: 184px; border-radius: 34px; }
+      .translation-engine::after { border-radius: 31px; }
+      .engine-mark { width: 58px; height: 58px; border-radius: 22px; font-size: 26px; }
+      .engine-inner strong { font-size: 18px; }
+      .message-packet { font-size: 11px; max-width: 132px; }
+      .message-packet.bad-left { left: 74px; top: 224px; }
+      .message-packet.good-top { right: 16px; top: 18px; }
+      .message-packet.bad-right { right: 68px; bottom: 220px; }
+      .message-packet.good-bottom { left: 8px; bottom: 26px; }
+      .flow-arrow { width: 118px; opacity: .42; }
+      .flow-arrow.left-in { left: 92px; top: 190px; }
+      .flow-arrow.right-out { right: 84px; top: 172px; }
+      .flow-arrow.right-in { right: 86px; bottom: 184px; }
+      .flow-arrow.left-out { left: 88px; bottom: 166px; }
+      .scene-caption { bottom: 0; white-space: normal; text-align: center; }
+      .tag-cloud span { font-size: 11px; padding: 7px 9px; }
+      .form-grid { grid-template-columns: 1fr; }
+      section { padding: 56px 0; }
+      .panel { padding: 18px; border-radius: 26px; }
+      .output-head { display: grid; }
+      .status-pill { width: max-content; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" aria-label="Primary navigation">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="Between Us home">
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </span>
+        Between Us
+      </a>
+      <div class="nav-links" aria-label="Page sections">
+        <a href="#how">How it works</a>
+        <a href="#demo">Demo</a>
+        <a href="#pricing">Pricing</a>
+      </div>
+      <div class="nav-cta">
+        <a class="btn btn-soft" href="#waitlist">Early access</a>
+        <a class="btn btn-primary" href="#demo">Try demo</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <header class="hero">
+      <div class="signal-bg" aria-hidden="true">
+        <svg viewBox="0 0 1440 760" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="bridgeGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#2563ff" />
+              <stop offset="55%" stop-color="#16c784" />
+              <stop offset="100%" stop-color="#9fe7cf" />
+            </linearGradient>
+            <radialGradient id="softGlow" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity=".74" />
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <rect width="1440" height="760" fill="url(#softGlow)" />
+          <path class="signal-line one" d="M-40 220 C 210 120, 360 340, 545 255 S 865 135, 1050 245 S 1265 430, 1485 265" />
+          <path class="signal-line two" d="M-60 438 C 175 585, 345 382, 560 468 S 895 615, 1078 430 S 1260 250, 1490 380" />
+          <path class="signal-line three" d="M-20 610 C 210 500, 395 675, 615 560 S 860 350, 1070 540 S 1290 682, 1465 540" />
+          <circle class="signal-node teen" cx="170" cy="230" r="14" />
+          <circle class="signal-node parent" cx="1215" cy="270" r="18" />
+          <circle class="signal-node bridge" cx="720" cy="372" r="26" />
+          <circle class="signal-node teen" cx="260" cy="585" r="10" />
+          <circle class="signal-node parent" cx="1120" cy="565" r="12" />
+          <text class="signal-word" x="92" y="160">teen text</text>
+          <text class="signal-word alt" x="1090" y="198">parent worry</text>
+          <text class="signal-word" x="650" y="315">translate</text>
+          <text class="signal-word alt" x="1040" y="640">heard</text>
+          <text class="signal-word" x="240" y="690">less cringe</text>
+        </svg>
+      </div>
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow"><span class="pulse" aria-hidden="true"></span> Before it becomes a fight</div>
+          <h1>Say the thing without making them <span class="serif">shut down.</span></h1>
+          <p class="lead">Between Us helps teens, young adults, and parents turn tense messages into words that sound real, lower defensiveness, and keep the conversation open.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary hero-main-cta" href="#demo">Fix a tense message</a>
+            <a class="btn btn-soft" href="#how">See how it works</a>
+          </div>
+          <p class="hero-mechanic">Paste a tense message → get a calmer, sendable version in seconds.</p>
+          <div class="trust" aria-label="Product promises">
+            <span>For teens & young adults</span>
+            <span>For parents</span>
+            <span>Less fighting, more being understood</span>
+          </div>
+        </div>
+
+        <div class="relationship-stage" aria-label="Between Us shows communication between Gen Z, Gen Alpha, and parents">
+          <div class="conversation-scene">
+            <div class="scene-glow" aria-hidden="true"></div>
+            <div class="family-arc" aria-hidden="true"></div>
+
+            <svg class="flow-arrow left-in" viewBox="0 0 180 76" aria-hidden="true"><path d="M8 58 C 52 10, 112 8, 170 38" /></svg>
+            <svg class="flow-arrow right-out" viewBox="0 0 180 76" aria-hidden="true"><path d="M8 58 C 52 10, 112 8, 170 38" /></svg>
+            <svg class="flow-arrow right-in" viewBox="0 0 180 76" aria-hidden="true"><path d="M8 58 C 52 10, 112 8, 170 38" /></svg>
+            <svg class="flow-arrow left-out" viewBox="0 0 180 76" aria-hidden="true"><path d="M8 58 C 52 10, 112 8, 170 38" /></svg>
+
+            <div class="phone-card teen-phone">
+              <div class="phone-screen">
+                <div class="phone-person"><span class="person-dot">Zα</span> Gen Z / Alpha</div>
+                <div class="phone-msg raw">“You never listen. You just lecture me.”</div>
+                <div class="phone-msg good">“Can you hear me before giving advice?”</div>
+              </div>
+            </div>
+
+            <div class="translation-engine" aria-hidden="true">
+              <div class="engine-inner">
+                <div class="engine-mark">↔</div>
+                <strong>Between Us</strong>
+                <span>turns blame, worry, and anger into words that can land</span>
+              </div>
+            </div>
+
+            <div class="phone-card parent-phone">
+              <div class="phone-screen">
+                <div class="phone-person"><span class="person-dot">P</span> Mom / Dad</div>
+                <div class="phone-msg raw">“I’m worried, so I push too hard.”</div>
+                <div class="phone-msg good">“I want to understand, not control you.”</div>
+              </div>
+            </div>
+
+            <div class="message-packet bad-left">before: defensive</div>
+            <div class="message-packet good-top">after: heard</div>
+            <div class="scene-caption">Teen ↔ Parent messages, translated before they explode</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="how">
+      <div class="wrap">
+        <div class="section-title">
+          <h2>Built for the conversations people usually avoid.</h2>
+          <p>Most rewrite tools make messages sound polished. Between Us makes them sound sendable — natural for the speaker, safer for the relationship, and easier for the other person to hear.</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">1</div>
+            <h3>Choose who you’re talking to</h3>
+            <p>A teen talking to mom needs different words than a parent talking to their daughter. The relationship changes the message.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">2</div>
+            <h3>Paste the version you probably shouldn’t send</h3>
+            <p>Angry, awkward, too blunt, too emotional — that is the point. Start with the honest version.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">3</div>
+            <h3>Get words that keep the door open</h3>
+            <p>Get a text to send, a version to say in person, what not to say, and a backup line if the other person reacts badly.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo" id="demo">
+      <div class="wrap demo-grid">
+        <div class="demo-compose">
+          <div class="section-title">
+            <h2>Try it on a message you’re stuck on.</h2>
+            <p>Write the message the way it came out in your head. Then make it shorter, softer, firmer, or less cringe before you send it.</p>
+          </div>
+          <div class="panel composer-panel" aria-label="Message rewrite demo form">
+            <div class="chat-top">
+              <div>
+                <div class="chat-kicker">Fix it before you send it</div>
+                <h3 class="chat-title">Paste the text you’re scared to send.</h3>
+                <p class="chat-subtitle">No need to sound mature yet. Put the messy version here and let Between Us clean the delivery, not the truth.</p>
+              </div>
+              <div class="mini-switch" aria-label="Speaker role">
+                <button class="seg" type="button" data-role="A parent">Parent</button>
+                <button class="seg active" type="button" data-role="A teen / young adult">Teen</button>
+              </div>
+            </div>
+
+            <div class="chat-card">
+              <div class="dm-row">
+                <div class="avatar" aria-hidden="true">ME</div>
+                <div class="dm-bubble">
+                  <p class="bubble-label">Messy version</p>
+                  <textarea id="message" placeholder="Example: you never listen to me and every talk becomes a lecture">You never listen to me. Every time I try to explain, you turn it into a lecture.</textarea>
+                </div>
+              </div>
+              <div class="quick-chips" aria-label="Fast relationship and context choices">
+                <button class="chip active" type="button" data-target="My mom" data-target-age="41–60" data-vibe="Gets angry fast">to mom</button>
+                <button class="chip" type="button" data-target="My dad" data-target-age="41–60" data-vibe="Strict">to dad</button>
+                <button class="chip" type="button" data-target="My daughter" data-target-age="14–18" data-vibe="Gets quiet / shuts down" data-role="A parent">to daughter</button>
+                <button class="chip" type="button" data-target="My son" data-target-age="14–18" data-vibe="Warm but doesn’t understand" data-role="A parent">to son</button>
+                <button class="chip subtle" type="button" data-topic="Phone & social media">phone drama</button>
+                <button class="chip subtle" type="button" data-topic="Freedom & trust">trust</button>
+                <button class="chip subtle" type="button" data-topic="Mental health">mental health</button>
+              </div>
+              <div class="tone-chips" aria-label="Output tone choices">
+                <button class="chip active" type="button" data-tone="Natural teen text">sound like me</button>
+                <button class="chip" type="button" data-tone="Short text message">short text</button>
+                <button class="chip" type="button" data-tone="Warm and vulnerable">more honest</button>
+                <button class="chip" type="button" data-tone="Firm but not aggressive">firm, not rude</button>
+                <button class="chip" type="button" data-tone="Less cringe, natural, not therapist-like">less cringe</button>
+              </div>
+            </div>
+
+            <div class="stealth-fields">
+              <details>
+                <summary>Fine-tune context</summary>
+                <div class="field-grid">
+                  <label>I am
+                    <select id="role">
+                      <option>A parent</option>
+                      <option selected>A teen / young adult</option>
+                    </select>
+                  </label>
+                  <label>I want to talk to
+                    <select id="target">
+                      <option selected>My mom</option>
+                      <option>My dad</option>
+                      <option>My daughter</option>
+                      <option>My son</option>
+                    </select>
+                  </label>
+                  <label>My age range
+                    <select id="speakerAge">
+                      <option selected>14–18</option>
+                      <option>10–13</option>
+                      <option>19–25</option>
+                      <option>26–40</option>
+                      <option>41–60</option>
+                      <option>60+</option>
+                      <option>Unknown</option>
+                    </select>
+                  </label>
+                  <label>Their age range
+                    <select id="targetAge">
+                      <option selected>41–60</option>
+                      <option>10–13</option>
+                      <option>14–18</option>
+                      <option>19–25</option>
+                      <option>26–40</option>
+                      <option>60+</option>
+                      <option>Unknown</option>
+                    </select>
+                  </label>
+                  <label>Topic
+                    <select id="topic">
+                      <option selected>Freedom & trust</option>
+                      <option>School & future</option>
+                      <option>Phone & social media</option>
+                      <option>Friends</option>
+                      <option>Dating</option>
+                      <option>Money</option>
+                      <option>Mental health</option>
+                      <option>Conflict / argument</option>
+                    </select>
+                  </label>
+                  <label>Their vibe
+                    <select id="vibe">
+                      <option selected>Gets angry fast</option>
+                      <option>Gets quiet / shuts down</option>
+                      <option>Strict</option>
+                      <option>Anxious / overprotective</option>
+                      <option>Warm but doesn’t understand</option>
+                      <option>I’m not sure</option>
+                    </select>
+                  </label>
+                  <label>Desired tone
+                    <select id="tone">
+                      <option>Calm and respectful</option>
+                      <option>Short text message</option>
+                      <option>Warm and vulnerable</option>
+                      <option>Firm but not aggressive</option>
+                      <option selected>Natural teen text</option>
+                      <option>Caring parent voice</option>
+                      <option>Less cringe, natural, not therapist-like</option>
+                    </select>
+                  </label>
+                </div>
+              </details>
+            </div>
+
+            <div class="composer-actions">
+              <button class="btn btn-primary" style="width:100%;" id="rewriteBtn">Fix the message</button>
+              <div class="helper-row">
+                <span>Anti-cringe check included: no fake slang, no therapy voice, no “AI apology essay.”</span>
+                <span id="formStatus" aria-live="polite">Ready</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel output output-shell" aria-live="polite" aria-busy="false" id="output" tabindex="-1">
+          <div class="output-head">
+            <div>
+              <h3 class="output-title">The version you can actually send</h3>
+              <p class="output-subtitle">Short enough to send, calm enough to land, and still honest enough to sound like you.</p>
+            </div>
+            <span class="status-pill" id="resultStatus">Sample result</span>
+          </div>
+          <div class="result-stack" id="resultStack">
+            <div class="result-card dark">
+              <h4>Best text to send</h4>
+              <p class="message-preview" id="mainResultText">I’m not trying to be disrespectful. I just need you to hear me before giving advice. Can we talk calmly?</p>
+            </div>
+            <div class="result-actions" aria-label="Result actions">
+              <button class="chip active" type="button" id="copyBtn">copy</button>
+              <button class="chip" type="button" data-remix-tone="Short text message">shorter</button>
+              <button class="chip" type="button" data-remix-tone="Less cringe, natural, not therapist-like">less cringe</button>
+              <button class="chip" type="button" data-remix-tone="Warm and vulnerable">more honest</button>
+            </div>
+            <div class="copy-toast" id="copyToast" aria-live="polite"></div>
+            <div class="result-card">
+              <h4>Why it works</h4>
+              <ul>
+                <li>It says the need without attacking.</li>
+                <li>It’s short enough to actually send.</li>
+                <li>It opens the door instead of starting another fight.</li>
+              </ul>
+            </div>
+            <div class="result-card">
+              <h4>If they react badly</h4>
+              <p>“I’m not trying to attack you. I’m trying to explain why I shut down. Can we pause and come back to this calmer?”</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="wrap">
+        <div class="section-title">
+          <h2>Start free. Upgrade when the conversations get harder.</h2>
+          <p>Use Between Us for quick message repair, then unlock deeper guidance for recurring conflicts, follow-ups, and high-stakes family conversations.</p>
+        </div>
+        <div class="pricing">
+          <article class="card price">
+            <h3>Free</h3>
+            <p>For the message you need help with today.</p>
+            <div class="amount">$0</div>
+            <ul>
+              <li>3 message repairs per day</li>
+              <li>Teen/parent relationship context</li>
+              <li>Text + in-person versions</li>
+            </ul>
+          </article>
+          <article class="card price featured">
+            <span class="badge">Best for families</span>
+            <h3>Family Plus</h3>
+            <p>For families who want fewer blowups and better follow-ups.</p>
+            <div class="amount">$7 <small>/mo</small></div>
+            <ul>
+              <li>Unlimited message repairs</li>
+              <li>Hard conversation modes</li>
+              <li>Conversation history</li>
+              <li>What to reply next</li>
+            </ul>
+            <button class="btn btn-soft checkout-btn" type="button" id="checkoutBtn">Start Family Plus</button>
+          </article>
+          <article class="card price">
+            <h3>Schools & coaches</h3>
+            <p>For professionals helping families communicate without replacing therapy.</p>
+            <div class="amount">B2B</div>
+            <ul>
+              <li>Shared family resources</li>
+              <li>Custom topic packs</li>
+              <li>Referral paths for qualified support</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="final" id="waitlist">
+      <div class="wrap">
+        <div class="final-card">
+          <h2>The message matters. The delivery decides if they hear it.</h2>
+          <p>Join early access for Between Us — built for teens, young adults, and parents trying to say hard things without making it worse.</p>
+          <form id="waitlistForm" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <label style="position:absolute; left:-9999px" for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="Email address" required style="max-width:320px; min-height:46px; border-radius:999px;" />
+            <button class="btn btn-primary" type="submit">Get early access</button>
+          </form>
+          <p id="thanks" style="margin-top:14px; font-size:14px; min-height:22px;" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <span>© 2026 Between Us</span>
+      <span>Guidance, not therapy. Crisis and abuse cases should route to qualified local support.</span>
+    </div>
+  </footer>
+
+  <script>
+    const output = document.getElementById('output');
+    const resultStack = document.getElementById('resultStack');
+    const resultStatus = document.getElementById('resultStatus');
+    const formStatus = document.getElementById('formStatus');
+    const button = document.getElementById('rewriteBtn');
+    const roleSelect = document.getElementById('role');
+    const targetSelect = document.getElementById('target');
+    const speakerAgeSelect = document.getElementById('speakerAge');
+    const targetAgeSelect = document.getElementById('targetAge');
+    const topicSelect = document.getElementById('topic');
+    const vibeSelect = document.getElementById('vibe');
+    const toneSelect = document.getElementById('tone');
+    const messageInput = document.getElementById('message');
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>\"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+    }
+
+    function listItems(items) {
+      return (items || []).map(item => `<li>${escapeHtml(item)}</li>`).join('');
+    }
+
+    function setSelectValue(select, value) {
+      if (!select || !value) return;
+      const exists = [...select.options].some(option => option.value === value || option.textContent === value);
+      if (!exists) select.add(new Option(value, value));
+      select.value = value;
+    }
+
+    let lastRewrite = null;
+    let lastPayload = null;
+
+    function getPayload(extra = {}) {
+      return {
+        role: roleSelect.value,
+        target: targetSelect.value,
+        speakerAge: speakerAgeSelect.value,
+        targetAge: targetAgeSelect.value,
+        topic: topicSelect.value,
+        vibe: vibeSelect.value,
+        tone: toneSelect.value,
+        message: messageInput.value,
+        ...extra
+      };
+    }
+
+    function syncRoleButtons() {
+      document.querySelectorAll('[data-role]').forEach(button => {
+        button.classList.toggle('active', button.dataset.role === roleSelect.value);
+      });
+    }
+
+    function updateRoleDefaults(role) {
+      setSelectValue(roleSelect, role);
+      if (role.includes('parent')) {
+        setSelectValue(speakerAgeSelect, '41–60');
+        if (!['My daughter', 'My son'].includes(targetSelect.value)) setSelectValue(targetSelect, 'My daughter');
+        if (!['10–13', '14–18', '19–25'].includes(targetAgeSelect.value)) setSelectValue(targetAgeSelect, '14–18');
+        setSelectValue(toneSelect, 'Caring parent voice');
+      } else {
+        setSelectValue(speakerAgeSelect, '14–18');
+        if (!['My mom', 'My dad'].includes(targetSelect.value)) setSelectValue(targetSelect, 'My mom');
+        if (!['41–60', '60+'].includes(targetAgeSelect.value)) setSelectValue(targetAgeSelect, '41–60');
+        setSelectValue(toneSelect, 'Natural teen text');
+      }
+      syncRoleButtons();
+    }
+
+    document.querySelectorAll('.seg').forEach(seg => {
+      seg.addEventListener('click', () => updateRoleDefaults(seg.dataset.role));
+    });
+
+    document.querySelectorAll('.quick-chips .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (chip.dataset.role) updateRoleDefaults(chip.dataset.role);
+        if (chip.dataset.target) {
+          setSelectValue(targetSelect, chip.dataset.target);
+          document.querySelectorAll('.quick-chips .chip[data-target]').forEach(item => item.classList.toggle('active', item === chip));
+        }
+        if (chip.dataset.targetAge) setSelectValue(targetAgeSelect, chip.dataset.targetAge);
+        if (chip.dataset.vibe) setSelectValue(vibeSelect, chip.dataset.vibe);
+        if (chip.dataset.topic) {
+          setSelectValue(topicSelect, chip.dataset.topic);
+          document.querySelectorAll('.quick-chips .chip[data-topic]').forEach(item => item.classList.toggle('active', item === chip));
+        }
+      });
+    });
+
+    document.querySelectorAll('.tone-chips .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        setSelectValue(toneSelect, chip.dataset.tone);
+        document.querySelectorAll('.tone-chips .chip').forEach(item => item.classList.toggle('active', item === chip));
+      });
+    });
+
+    async function generateVoice(text, button) {
+      if (!text) return;
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = 'making voice…';
+      try {
+        const response = await fetch('/api/voice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(data.error || 'Voice generation failed');
+        const voiceBox = document.getElementById('voiceOutput');
+        voiceBox.innerHTML = `
+          <h4>Voice version</h4>
+          <p style="margin-bottom:10px; color: var(--muted);">Voice: ${escapeHtml(data.voice)}</p>
+          <audio controls src="${escapeHtml(data.audio_url)}" style="width:100%"></audio>
+        `;
+      } catch (error) {
+        const voiceBox = document.getElementById('voiceOutput');
+        voiceBox.innerHTML = `<h4>Voice error</h4><p>${escapeHtml(error.message || 'Could not generate voice.')}</p>`;
+      } finally {
+        button.disabled = false;
+        button.textContent = original;
+      }
+    }
+
+    function revealOutput({ focus = false } = {}) {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      output.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      if (focus) output.focus({ preventScroll: true });
+    }
+
+    function setResultState(label, busy = false) {
+      resultStatus.textContent = label;
+      formStatus.textContent = label;
+      output.setAttribute('aria-busy', String(busy));
+    }
+
+    function renderLoading() {
+      setResultState('Rewriting…', true);
+      resultStack.innerHTML = `
+        <div class="result-card dark skeleton"><h4>Fixing the message</h4><p>Checking tone, removing blame, and keeping it natural — not fake deep.</p></div>
+        <div class="result-card skeleton"><h4>Anti-cringe pass</h4><p>No forced slang. No therapy-speak. Just something a real person could send.</p></div>
+      `;
+      revealOutput();
+    }
+
+    function resultActionsHtml() {
+      return `
+        <div class="result-actions" aria-label="Result actions">
+          <button class="chip active" type="button" id="copyBtn">copy</button>
+          <button class="chip" type="button" data-remix-tone="Short text message">shorter</button>
+          <button class="chip" type="button" data-remix-tone="Less cringe, natural, not therapist-like">less cringe</button>
+          <button class="chip" type="button" data-remix-tone="Warm and vulnerable">more honest</button>
+          <button class="chip" type="button" id="voiceBtn">hear it</button>
+        </div>
+        <div class="copy-toast" id="copyToast" aria-live="polite"></div>
+      `;
+    }
+
+    function attachResultActions() {
+      const copyButton = document.getElementById('copyBtn');
+      const toast = document.getElementById('copyToast');
+      copyButton?.addEventListener('click', async () => {
+        const text = lastRewrite?.text_message_version || lastRewrite?.better_version || '';
+        try {
+          await navigator.clipboard.writeText(text);
+          toast.textContent = 'Copied — ready to paste.';
+        } catch {
+          toast.textContent = 'Copy failed. Select the text manually.';
+        }
+      });
+
+      document.querySelectorAll('[data-remix-tone]').forEach(remix => {
+        remix.addEventListener('click', () => {
+          setSelectValue(toneSelect, remix.dataset.remixTone);
+          runRewrite({ tone: remix.dataset.remixTone }, { remix: true });
+        });
+      });
+
+      document.getElementById('voiceBtn')?.addEventListener('click', (event) => {
+        generateVoice(lastRewrite?.text_message_version || lastRewrite?.better_version, event.currentTarget);
+      });
+    }
+
+    function renderResult(data) {
+      lastRewrite = data;
+      setResultState('Ready', false);
+      const why = listItems(data.why_this_works);
+      const notSay = listItems(data.what_not_to_say);
+      resultStack.innerHTML = `
+        <div class="result-card dark"><h4>Best text to send</h4><p class="message-preview" id="mainResultText">${escapeHtml(data.text_message_version || data.better_version)}</p></div>
+        ${resultActionsHtml()}
+        <div class="result-card"><h4>Softer full version</h4><p>${escapeHtml(data.better_version)}</p></div>
+        <div class="result-card"><h4>Say it in person</h4><p>${escapeHtml(data.in_person_version)}</p></div>
+        <div class="result-card" id="voiceOutput" aria-live="polite"><h4>Voice</h4><p>Tap “hear it” to generate an audio read of the text.</p></div>
+        <div class="result-card"><h4>Why it works</h4><ul>${why}</ul></div>
+        <div class="result-card"><h4>What not to say</h4><ul>${notSay}</ul></div>
+        <div class="result-card"><h4>If they react badly</h4><p>${escapeHtml(data.if_they_react_badly)}</p></div>
+        ${data.gentle_note ? `<div class="result-card"><h4>Gentle note</h4><p>${escapeHtml(data.gentle_note)}</p></div>` : ''}
+      `;
+      attachResultActions();
+      revealOutput({ focus: true });
+    }
+
+    function renderError(message) {
+      setResultState('Needs attention', false);
+      resultStack.innerHTML = `
+        <div class="result-card dark"><h4>Couldn’t fix it yet</h4><p>${escapeHtml(message)}</p></div>
+        <div class="result-card"><h4>Quick fix</h4><p>Open this project through the local server, not by double-clicking index.html directly. Use <strong>START.command</strong> or run <strong>npm start</strong>.</p></div>
+      `;
+      revealOutput({ focus: true });
+    }
+
+    async function runRewrite(extra = {}, options = {}) {
+      const payload = getPayload(extra);
+      lastPayload = payload;
+
+      if (!payload.message.trim()) {
+        renderError('Write the raw message first. Even one messy sentence is enough.');
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = options.remix ? 'Tuning…' : 'Fixing…';
+      renderLoading();
+
+      try {
+        const response = await fetch('/api/rewrite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Server error');
+        renderResult(data);
+      } catch (error) {
+        renderError(error.message || 'The local server is not running.');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Fix the message';
+      }
+    }
+
+    document.getElementById('waitlistForm')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const email = form.email.value;
+      const thanks = document.getElementById('thanks');
+      thanks.textContent = 'Joining…';
+      try {
+        const response = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, source: 'landing' })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Could not join the list.');
+        thanks.textContent = data.message || 'You’re on the list. We’ll send early access soon.';
+        form.reset();
+      } catch (error) {
+        thanks.textContent = error.message || 'Could not join the list. Please try again.';
+      }
+    });
+
+    document.getElementById('checkoutBtn')?.addEventListener('click', async (event) => {
+      const btn = event.currentTarget;
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Opening checkout…';
+      try {
+        const response = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Checkout is not ready yet.');
+        window.location.href = data.url;
+      } catch (error) {
+        alert(error.message || 'Checkout is not ready yet.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    });
+
+    button.addEventListener('click', () => runRewrite());
+    attachResultActions();
+    syncRoleButtons();
+  </script>
+</body>
+</html>

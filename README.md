@@ -73,12 +73,21 @@ The serverless API uses the service role key; never expose it in frontend JavaSc
 
 ## Stripe setup
 
+Checkout is implemented at `POST /api/checkout`.
+
+Required server-side Checkout setup:
+
 1. Create product: `Family Plus`.
 2. Create recurring price: `$7/month`.
-3. Put the price id into `STRIPE_PRICE_FAMILY_PLUS`.
-4. Put secret key into `STRIPE_SECRET_KEY`.
+3. Put the price id into `STRIPE_PRICE_FAMILY_PLUS` (`price_...`).
+4. Put the secret key into `STRIPE_SECRET_KEY` (`sk_live_...` or `sk_test_...`).
+5. Redeploy Vercel.
 
-Webhook endpoint is present at `/api/stripe-webhook` and records raw Stripe events in Supabase. Next step is to map those events to authenticated user profiles after we finalize auth.
+Optional fastest fallback:
+
+- Create a hosted Stripe Payment Link and set `STRIPE_PAYMENT_LINK_URL` in Vercel. The checkout API will redirect there when no secret key is configured.
+
+Webhook endpoint is present at `/api/stripe-webhook` and records raw Stripe events in Supabase. Set `STRIPE_WEBHOOK_SECRET` after creating the Stripe webhook endpoint. Next step is to map those events to authenticated user profiles after we finalize auth.
 
 ## Resend setup
 

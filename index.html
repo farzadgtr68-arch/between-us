@@ -1073,9 +1073,15 @@
       btn.disabled = true;
       btn.textContent = 'Opening checkout…';
       try {
-        const response = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        const email = document.getElementById('email')?.value || '';
+        const response = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Checkout is not ready yet.');
+        if (!data.url) throw new Error('Stripe did not return a checkout URL.');
         window.location.href = data.url;
       } catch (error) {
         alert(error.message || 'Checkout is not ready yet.');

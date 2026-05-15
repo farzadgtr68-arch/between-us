@@ -32,8 +32,10 @@ Do not open `index.html` directly if you want API buttons to work.
 
 - `POST /api/rewrite` — rewrites tense messages and logs usage when Supabase is configured.
 - `POST /api/waitlist` — saves email to Supabase and optionally sends Resend emails.
-- `POST /api/checkout` — creates Stripe Checkout session for Family Plus.
-- `POST /api/stripe-webhook` — records Stripe events in Supabase for subscription sync.
+- `POST /api/auth-start` — sends Supabase magic-link login email.
+- `GET /api/me` — returns authenticated profile and Family Plus entitlement.
+- `POST /api/checkout` — creates Stripe Checkout session for logged-in users only.
+- `POST /api/stripe-webhook` — records Stripe events in Supabase and syncs Family Plus entitlement.
 - `GET /api/health` — shows which integrations are configured.
 - `POST /api/voice` — disabled in production until a hosted TTS provider is added.
 
@@ -52,6 +54,7 @@ Optional but recommended:
 
 ```env
 SUPABASE_URL=
+SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 FREE_REWRITES_PER_DAY=3
 STRIPE_SECRET_KEY=
@@ -67,9 +70,10 @@ PUBLIC_SITE_URL=https://your-domain.com
 1. Create a Supabase project.
 2. Open SQL Editor.
 3. Run `supabase/schema.sql`.
-4. Copy `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` into Vercel env vars.
+4. Copy `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` into Vercel env vars.
+5. In Supabase Auth URL Configuration, set Site URL to your production domain and add the same domain as an allowed redirect URL.
 
-The serverless API uses the service role key; never expose it in frontend JavaScript.
+The serverless API uses the service role key for database writes; never expose the service role key in frontend JavaScript. The anon key is safe to use for Supabase Auth.
 
 ## Stripe setup
 
@@ -87,7 +91,9 @@ Optional fastest fallback:
 
 - Create a hosted Stripe Payment Link and set `STRIPE_PAYMENT_LINK_URL` in Vercel. The checkout API will redirect there when no secret key is configured.
 
-Webhook endpoint is present at `/api/stripe-webhook` and records raw Stripe events in Supabase. Set `STRIPE_WEBHOOK_SECRET` after creating the Stripe webhook endpoint. Next step is to map those events to authenticated user profiles after we finalize auth.
+Webhook endpoint is present at `/api/stripe-webhook`, records raw Stripe events in Supabase, and updates `user_profiles.plan/subscription_status`. Set `STRIPE_WEBHOOK_SECRET` after creating the Stripe webhook endpoint.
+
+Important: checkout now requires login. Stripe sessions include `client_reference_id` and metadata with the Supabase user id, so paid access attaches to the logged-in account.
 
 ## Resend setup
 

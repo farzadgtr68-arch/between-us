@@ -62,6 +62,13 @@
     .mark svg { width: 22px; height: 22px; fill: white; }
     .nav-links { display: flex; gap: 22px; color: var(--muted); font-size: 14px; font-weight: 600; }
     .nav-cta { display: flex; align-items: center; gap: 10px; }
+    .account-pill { min-height: 36px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; background: rgba(255,255,255,.68); border: 1px solid var(--line); color: var(--muted); }
+    .account-pill.paid { color: #065f46; background: rgba(22,199,132,.12); border-color: rgba(22,199,132,.32); }
+    .auth-card { margin: 0 0 18px; padding: 16px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,.72); display: grid; gap: 10px; }
+    .auth-card strong { color: var(--ink); }
+    .auth-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .auth-row input { flex: 1 1 220px; min-height: 44px; border: 1px solid var(--line); border-radius: 999px; padding: 0 14px; background: white; }
+    .auth-note { min-height: 20px; margin: 0; color: var(--muted); font-size: 13px; }
 
     .btn {
       border: 0;
@@ -445,7 +452,8 @@
         <a href="#pricing">Pricing</a>
       </div>
       <div class="nav-cta">
-        <a class="btn btn-soft" href="#waitlist">Early access</a>
+        <span class="account-pill" id="accountPill">Guest</span>
+        <button class="btn btn-soft" type="button" id="logoutBtn" hidden>Log out</button>
         <a class="btn btn-primary" href="#demo">Try demo</a>
       </div>
     </div>
@@ -574,6 +582,15 @@
             <h2>Try it on a message you’re stuck on.</h2>
             <p>Write the message the way it came out in your head. Then make it shorter, softer, firmer, or less cringe before you send it.</p>
           </div>
+          <div class="auth-card" id="authCard">
+            <strong>Login protects paid access.</strong>
+            <div class="auth-row">
+              <input id="loginEmail" type="email" autocomplete="email" placeholder="Email for login + billing" />
+              <button class="btn btn-soft" type="button" id="loginBtn">Send login link</button>
+            </div>
+            <p class="auth-note" id="authStatus">Free users get 3 repairs/day. Family Plus unlocks unlimited repairs for the logged-in account.</p>
+          </div>
+
           <div class="panel composer-panel" aria-label="Message rewrite demo form">
             <div class="chat-top">
               <div>
@@ -818,6 +835,89 @@
     const vibeSelect = document.getElementById('vibe');
     const toneSelect = document.getElementById('tone');
     const messageInput = document.getElementById('message');
+    const accountPill = document.getElementById('accountPill');
+    const loginEmail = document.getElementById('loginEmail');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const authStatus = document.getElementById('authStatus');
+    const authTokenKey = 'between_us_access_token';
+    const authRefreshKey = 'between_us_refresh_token';
+    let account = { authenticated: false, paid: false };
+
+    function getAccessToken() { return localStorage.getItem(authTokenKey) || ''; }
+    function authHeaders() {
+      const token = getAccessToken();
+      return token ? { Authorization: `Bearer ${token}` } : {};
+    }
+
+    function captureAuthFromUrl() {
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const accessToken = hash.get('access_token');
+      const refreshToken = hash.get('refresh_token');
+      if (accessToken) {
+        localStorage.setItem(authTokenKey, accessToken);
+        if (refreshToken) localStorage.setItem(authRefreshKey, refreshToken);
+        history.replaceState({}, document.title, window.location.pathname + window.location.search.replace(/[?&]auth=callback/, ''));
+      }
+    }
+
+    function updateAccountUi() {
+      if (!account.authenticated) {
+        accountPill.textContent = 'Guest';
+        accountPill.classList.remove('paid');
+        logoutBtn.hidden = true;
+        authStatus.textContent = 'Free users get 3 repairs/day. Log in before upgrading so paid access attaches to you.';
+        return;
+      }
+      accountPill.textContent = account.paid ? 'Family Plus active' : `Logged in: ${account.user?.email || 'account'}`;
+      accountPill.classList.toggle('paid', account.paid);
+      logoutBtn.hidden = false;
+      loginEmail.value = account.user?.email || loginEmail.value;
+      authStatus.textContent = account.paid ? 'Family Plus is active on this account. Unlimited repairs are unlocked.' : 'You are logged in. Upgrade to attach Family Plus to this account.';
+    }
+
+    async function refreshAccount() {
+      try {
+        const response = await fetch('/api/me', { headers: authHeaders() });
+        account = await response.json();
+      } catch {
+        account = { authenticated: false, paid: false };
+      }
+      updateAccountUi();
+    }
+
+    async function sendLoginLink() {
+      const email = loginEmail.value.trim();
+      if (!email) { authStatus.textContent = 'Enter your email first.'; return; }
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Sending…';
+      try {
+        const response = await fetch('/api/auth-start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Could not send login link.');
+        authStatus.textContent = data.message || 'Check your email for a login link.';
+      } catch (error) {
+        authStatus.textContent = error.message || 'Could not send login link.';
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Send login link';
+      }
+    }
+
+    loginBtn?.addEventListener('click', sendLoginLink);
+    logoutBtn?.addEventListener('click', () => {
+      localStorage.removeItem(authTokenKey);
+      localStorage.removeItem(authRefreshKey);
+      account = { authenticated: false, paid: false };
+      updateAccountUi();
+    });
+
+    captureAuthFromUrl();
+    refreshAccount();
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>\"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
@@ -1032,7 +1132,7 @@
       try {
         const response = await fetch('/api/rewrite', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify(payload)
         });
         const data = await response.json();
@@ -1073,11 +1173,15 @@
       btn.disabled = true;
       btn.textContent = 'Opening checkout…';
       try {
-        const email = document.getElementById('email')?.value || '';
+        if (!account.authenticated) {
+          authStatus.textContent = 'Log in first so Family Plus attaches to your account.';
+          document.getElementById('authCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          throw new Error('Log in before upgrading.');
+        }
         const response = await fetch('/api/checkout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({})
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Checkout is not ready yet.');

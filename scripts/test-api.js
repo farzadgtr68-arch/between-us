@@ -3,8 +3,10 @@ const rewrite = require('../api/rewrite');
 const waitlist = require('../api/waitlist');
 const checkout = require('../api/checkout');
 const health = require('../api/health');
+const authStart = require('../api/auth-start');
+const me = require('../api/me');
 
-const routes = { '/api/rewrite': rewrite, '/api/waitlist': waitlist, '/api/checkout': checkout, '/api/health': health };
+const routes = { '/api/rewrite': rewrite, '/api/waitlist': waitlist, '/api/checkout': checkout, '/api/health': health, '/api/auth-start': authStart, '/api/me': me };
 const server = http.createServer((req, res) => {
   const handler = routes[req.url.split('?')[0]];
   if (!handler) {

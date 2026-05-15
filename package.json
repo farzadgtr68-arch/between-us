@@ -5,7 +5,7 @@
   "description": "Between Us MVP — AI family communication rewrite product",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check lib/between-us.js && node --check lib/http.js && node --check lib/supabase.js && node --check api/rewrite.js && node --check api/waitlist.js && node --check api/checkout.js && node --check api/health.js && node --check api/voice.js && node --check api/stripe-webhook.js",
+    "check": "node --check server.js && node --check lib/between-us.js && node --check lib/http.js && node --check lib/supabase.js && node --check lib/auth.js && node --check api/auth-start.js && node --check api/me.js && node --check api/rewrite.js && node --check api/waitlist.js && node --check api/checkout.js && node --check api/health.js && node --check api/voice.js && node --check api/stripe-webhook.js",
     "test:api": "node scripts/test-api.js"
   },
   "engines": {

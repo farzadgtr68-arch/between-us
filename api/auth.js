@@ -43,8 +43,17 @@ async function signUp(req, res, body) {
     })
   });
 
-  const user = result.data?.user || null;
-  const session = result.data?.session || null;
+  let user = result.data?.user || null;
+  let session = result.data?.session || null;
+
+  // Some Supabase projects return no session on signup even when the account is usable.
+  // Immediately logging in makes the UI behave like a normal “create account” flow.
+  if (user && !session) {
+    const loginResult = await signInWithPassword(email, password);
+    user = loginResult.user || user;
+    session = loginResult.session || null;
+  }
+
   if (user) await ensureProfile({ ...user, email, user_metadata: { ...(user.user_metadata || {}), name, full_name: name } }).catch(error => console.error('ensureProfile signup failed:', error.message));
 
   return sendJson(res, 200, {
@@ -61,25 +70,32 @@ async function signIn(req, res, body) {
   if (!email) return sendJson(res, 400, { error: 'Enter a valid email.' });
   if (!password) return sendJson(res, 400, { error: 'Enter your password.' });
 
-  const result = await supabaseAuthRequest('token?grant_type=password', {
-    method: 'POST',
-    body: JSON.stringify({ email, password })
-  });
-
-  const user = result.data?.user || null;
+  const { user, session } = await signInWithPassword(email, password);
   if (user) await ensureProfile(user).catch(error => console.error('ensureProfile login failed:', error.message));
 
   return sendJson(res, 200, {
     ok: true,
     user: publicUser(user),
+    session,
+    message: 'Logged in.'
+  });
+}
+
+async function signInWithPassword(email, password) {
+  const result = await supabaseAuthRequest('token?grant_type=password', {
+    method: 'POST',
+    body: JSON.stringify({ email, password })
+  });
+
+  return {
+    user: result.data?.user || null,
     session: {
       access_token: result.data?.access_token,
       refresh_token: result.data?.refresh_token,
       expires_in: result.data?.expires_in,
       token_type: result.data?.token_type
-    },
-    message: 'Logged in.'
-  });
+    }
+  };
 }
 
 async function startGoogleLogin(req, res, url, anonKey) {
@@ -140,6 +156,8 @@ function friendlyAuthError(error) {
   const message = String(error?.data?.msg || error?.data?.message || error?.message || 'Authentication failed.');
   if (/unsupported provider|provider is not enabled/i.test(message)) return 'Google login is not enabled yet. Please use email + password for now.';
   if (/invalid login credentials/i.test(message)) return 'Email or password is wrong.';
+  if (/email_address_invalid|email address .* invalid/i.test(message)) return 'Use a real email address, like your Gmail.';
+  if (/over_email_send_rate_limit|email rate limit/i.test(message)) return 'Signup emails are rate-limited right now. Try again in a minute, or use a different email.';
   if (/email not confirmed/i.test(message)) return 'Please confirm your email once, then log in with your password.';
   if (/user already registered|already been registered/i.test(message)) return 'This email already has an account. Switch to Log in.';
   if (/password/i.test(message) && /weak|short|length/i.test(message)) return 'Password must be at least 6 characters.';

@@ -33,15 +33,34 @@ async function signUp(req, res, body) {
   if (password.length < 6) return sendJson(res, 400, { error: 'Password must be at least 6 characters.' });
 
   const origin = getOrigin(req);
-  const result = await supabaseAuthRequest('signup', {
-    method: 'POST',
-    body: JSON.stringify({
-      email,
-      password,
-      data: { name, full_name: name },
-      options: { email_redirect_to: `${origin}/?auth=callback` }
-    })
-  });
+  let result;
+  try {
+    result = await supabaseAuthRequest('signup', {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+        data: { name, full_name: name },
+        options: { email_redirect_to: `${origin}/?auth=callback` }
+      })
+    });
+  } catch (error) {
+    if (/user_already_exists|user already registered|already been registered/i.test(String(error?.data?.error_code || error?.data?.msg || error?.message || ''))) {
+      try {
+        const existing = await signInWithPassword(email, password);
+        if (existing.user) await ensureProfile({ ...existing.user, email, user_metadata: { ...(existing.user.user_metadata || {}), name, full_name: name } }).catch(profileError => console.error('ensureProfile existing signup failed:', profileError.message));
+        return sendJson(res, 200, {
+          ok: true,
+          user: publicUser(existing.user, name),
+          session: existing.session,
+          message: 'This account already exists, so we logged you in.'
+        });
+      } catch {
+        return sendJson(res, 409, { error: 'This email already has an account. Switch to Log in and use the original password.' });
+      }
+    }
+    throw error;
+  }
 
   let user = result.data?.user || null;
   let session = result.data?.session || null;

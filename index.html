@@ -64,11 +64,21 @@
     .nav-cta { display: flex; align-items: center; gap: 10px; }
     .account-pill { min-height: 36px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; background: rgba(255,255,255,.68); border: 1px solid var(--line); color: var(--muted); }
     .account-pill.paid { color: #065f46; background: rgba(22,199,132,.12); border-color: rgba(22,199,132,.32); }
-    .auth-card { margin: 0 0 18px; padding: 16px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,.72); display: grid; gap: 10px; }
-    .auth-card strong { color: var(--ink); }
-    .auth-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .auth-row input { flex: 1 1 220px; min-height: 44px; border: 1px solid var(--line); border-radius: 999px; padding: 0 14px; background: white; }
-    .auth-note { min-height: 20px; margin: 0; color: var(--muted); font-size: 13px; }
+    .auth-card { margin: 0 0 18px; padding: 18px; border: 1px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.78); display: grid; gap: 14px; box-shadow: 0 18px 44px rgba(16,20,23,.07); }
+    .auth-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+    .auth-card strong { color: var(--ink); display: block; margin-bottom: 3px; }
+    .auth-card small { color: var(--muted); line-height: 1.45; }
+    .auth-tabs { display: inline-flex; padding: 4px; border-radius: 999px; background: rgba(16,20,23,.06); border: 1px solid rgba(16,20,23,.06); }
+    .auth-tab { min-height: 36px; border: 0; border-radius: 999px; padding: 0 13px; background: transparent; color: var(--muted); cursor: pointer; font-weight: 800; }
+    .auth-tab.active { color: var(--ink); background: white; box-shadow: 0 6px 18px rgba(16,20,23,.08); }
+    .auth-form { display: grid; gap: 10px; }
+    .auth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .auth-field { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .auth-field input { width: 100%; min-height: 46px; border: 1px solid var(--line); border-radius: 16px; padding: 0 14px; background: white; color: var(--ink); }
+    .auth-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .auth-actions .btn { flex: 1 1 180px; }
+    .auth-note { min-height: 20px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .google-mark { width: 18px; height: 18px; display: inline-block; }
 
     .btn {
       border: 0;
@@ -426,7 +436,10 @@
       .flow-arrow.left-out { left: 88px; bottom: 166px; }
       .scene-caption { bottom: 0; white-space: normal; text-align: center; }
       .tag-cloud span { font-size: 11px; padding: 7px 9px; }
-      .form-grid { grid-template-columns: 1fr; }
+      .form-grid, .auth-grid { grid-template-columns: 1fr; }
+      .auth-head { display: grid; }
+      .auth-tabs { width: 100%; }
+      .auth-tab { flex: 1; }
       section { padding: 56px 0; }
       .panel { padding: 18px; border-radius: 26px; }
       .output-head { display: grid; }
@@ -583,12 +596,37 @@
             <p>Write the message the way it came out in your head. Then make it shorter, softer, firmer, or less cringe before you send it.</p>
           </div>
           <div class="auth-card" id="authCard">
-            <strong>Login protects paid access.</strong>
-            <div class="auth-row">
-              <input id="loginEmail" type="email" autocomplete="email" placeholder="Email for login + billing" />
-              <button class="btn btn-soft" type="button" id="loginBtn">Send login link</button>
+            <div class="auth-head">
+              <div>
+                <strong id="authTitle">Create your account once.</strong>
+                <small>After that, log in with email + password. No new code every time.</small>
+              </div>
+              <div class="auth-tabs" role="tablist" aria-label="Account mode">
+                <button class="auth-tab active" type="button" id="signupTab" aria-selected="true">Sign up</button>
+                <button class="auth-tab" type="button" id="loginTab" aria-selected="false">Log in</button>
+              </div>
             </div>
-            <p class="auth-note" id="authStatus">Free users get 3 repairs/day. Family Plus unlocks unlimited repairs for the logged-in account.</p>
+            <form class="auth-form" id="authForm">
+              <div class="auth-grid">
+                <label class="auth-field" id="nameField">Name
+                  <input id="authName" name="name" type="text" autocomplete="name" placeholder="Your name" />
+                </label>
+                <label class="auth-field">Email
+                  <input id="authEmail" name="email" type="email" autocomplete="email" placeholder="you@email.com" required />
+                </label>
+                <label class="auth-field">Password
+                  <input id="authPassword" name="password" type="password" autocomplete="new-password" placeholder="At least 6 characters" minlength="6" required />
+                </label>
+              </div>
+              <div class="auth-actions">
+                <button class="btn btn-primary" type="submit" id="authSubmitBtn">Create account</button>
+                <button class="btn btn-soft" type="button" id="googleBtn" aria-label="Continue with Google" hidden>
+                  <svg class="google-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  Continue with Google
+                </button>
+              </div>
+            </form>
+            <p class="auth-note" id="authStatus">Free users get 3 repairs/day. Family Plus unlocks unlimited repairs for your account.</p>
           </div>
 
           <div class="panel composer-panel" aria-label="Message rewrite demo form">
@@ -836,13 +874,23 @@
     const toneSelect = document.getElementById('tone');
     const messageInput = document.getElementById('message');
     const accountPill = document.getElementById('accountPill');
-    const loginEmail = document.getElementById('loginEmail');
-    const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const authStatus = document.getElementById('authStatus');
+    const authForm = document.getElementById('authForm');
+    const authTitle = document.getElementById('authTitle');
+    const authName = document.getElementById('authName');
+    const authEmail = document.getElementById('authEmail');
+    const authPassword = document.getElementById('authPassword');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    const googleBtn = document.getElementById('googleBtn');
+    const signupTab = document.getElementById('signupTab');
+    const loginTab = document.getElementById('loginTab');
+    const nameField = document.getElementById('nameField');
     const authTokenKey = 'between_us_access_token';
     const authRefreshKey = 'between_us_refresh_token';
     let account = { authenticated: false, paid: false };
+    let authMode = 'signup';
+    let googleAuthAvailable = false;
 
     function getAccessToken() { return localStorage.getItem(authTokenKey) || ''; }
     function authHeaders() {
@@ -850,15 +898,39 @@
       return token ? { Authorization: `Bearer ${token}` } : {};
     }
 
+    function setAuthTokens(data = {}) {
+      if (data.access_token) localStorage.setItem(authTokenKey, data.access_token);
+      if (data.refresh_token) localStorage.setItem(authRefreshKey, data.refresh_token);
+    }
+
     function captureAuthFromUrl() {
       const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
       const accessToken = hash.get('access_token');
       const refreshToken = hash.get('refresh_token');
       if (accessToken) {
-        localStorage.setItem(authTokenKey, accessToken);
-        if (refreshToken) localStorage.setItem(authRefreshKey, refreshToken);
+        setAuthTokens({ access_token: accessToken, refresh_token: refreshToken });
         history.replaceState({}, document.title, window.location.pathname + window.location.search.replace(/[?&]auth=callback/, ''));
       }
+    }
+
+    function displayName() {
+      return account.user?.name || account.profile?.full_name || account.user?.email?.split('@')[0] || 'there';
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      const isSignup = mode === 'signup';
+      signupTab.classList.toggle('active', isSignup);
+      loginTab.classList.toggle('active', !isSignup);
+      signupTab.setAttribute('aria-selected', String(isSignup));
+      loginTab.setAttribute('aria-selected', String(!isSignup));
+      nameField.hidden = !isSignup;
+      authPassword.autocomplete = isSignup ? 'new-password' : 'current-password';
+      authTitle.textContent = isSignup ? 'Create your account once.' : 'Welcome back.';
+      authSubmitBtn.textContent = isSignup ? 'Create account' : 'Log in';
+      authStatus.textContent = isSignup
+        ? (googleAuthAvailable ? 'Sign up once with name, email, and password — or continue with Google.' : 'Sign up once with name, email, and password.')
+        : 'Log in with the same email and password. No email code needed.';
     }
 
     function updateAccountUi() {
@@ -866,14 +938,29 @@
         accountPill.textContent = 'Guest';
         accountPill.classList.remove('paid');
         logoutBtn.hidden = true;
+        authForm.hidden = false;
+        googleBtn.hidden = !googleAuthAvailable;
         authStatus.textContent = 'Free users get 3 repairs/day. Log in before upgrading so paid access attaches to you.';
         return;
       }
-      accountPill.textContent = account.paid ? 'Family Plus active' : `Logged in: ${account.user?.email || 'account'}`;
+      accountPill.textContent = account.paid ? `Family Plus · ${displayName()}` : `Hi, ${displayName()}`;
       accountPill.classList.toggle('paid', account.paid);
       logoutBtn.hidden = false;
-      loginEmail.value = account.user?.email || loginEmail.value;
+      authForm.hidden = true;
+      googleBtn.hidden = true;
+      if (authEmail && account.user?.email) authEmail.value = account.user.email;
+      authTitle.textContent = `You’re logged in, ${displayName()}.`;
       authStatus.textContent = account.paid ? 'Family Plus is active on this account. Unlimited repairs are unlocked.' : 'You are logged in. Upgrade to attach Family Plus to this account.';
+    }
+
+    async function refreshAppConfig() {
+      try {
+        const response = await fetch('/api/health');
+        const data = await response.json();
+        googleAuthAvailable = Boolean(data.googleAuth);
+      } catch {
+        googleAuthAvailable = false;
+      }
     }
 
     async function refreshAccount() {
@@ -886,38 +973,74 @@
       updateAccountUi();
     }
 
-    async function sendLoginLink() {
-      const email = loginEmail.value.trim();
-      if (!email) { authStatus.textContent = 'Enter your email first.'; return; }
-      loginBtn.disabled = true;
-      loginBtn.textContent = 'Sending…';
+    async function submitAuth(event) {
+      event.preventDefault();
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+      const name = authName.value.trim();
+      if (!email || !password) { authStatus.textContent = 'Enter your email and password.'; return; }
+      if (authMode === 'signup' && !name) { authStatus.textContent = 'Enter your name so we can greet you after login.'; return; }
+      authSubmitBtn.disabled = true;
+      authSubmitBtn.textContent = authMode === 'signup' ? 'Creating…' : 'Logging in…';
       try {
-        const response = await fetch('/api/auth-start', {
+        const response = await fetch('/api/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ action: authMode, email, password, name })
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Could not send login link.');
-        authStatus.textContent = data.message || 'Check your email for a login link.';
+        if (!response.ok) throw new Error(data.error || 'Authentication failed.');
+        if (data.session?.access_token) {
+          setAuthTokens(data.session);
+          authStatus.textContent = authMode === 'signup' ? 'Account created. You are logged in.' : 'Logged in.';
+          await refreshAccount();
+        } else {
+          authStatus.textContent = data.message || 'Account created. Please confirm your email once, then log in with your password.';
+          setAuthMode('login');
+        }
       } catch (error) {
-        authStatus.textContent = error.message || 'Could not send login link.';
+        authStatus.textContent = error.message || 'Authentication failed.';
       } finally {
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Send login link';
+        authSubmitBtn.disabled = false;
+        authSubmitBtn.textContent = authMode === 'signup' ? 'Create account' : 'Log in';
       }
     }
 
-    loginBtn?.addEventListener('click', sendLoginLink);
+    async function continueWithGoogle() {
+      googleBtn.disabled = true;
+      try {
+        const response = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'google' })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Google login is not available.');
+        window.location.href = data.url;
+      } catch (error) {
+        authStatus.textContent = error.message || 'Google login is not available.';
+        googleBtn.disabled = false;
+      }
+    }
+
+    signupTab?.addEventListener('click', () => setAuthMode('signup'));
+    loginTab?.addEventListener('click', () => setAuthMode('login'));
+    authForm?.addEventListener('submit', submitAuth);
+    googleBtn?.addEventListener('click', continueWithGoogle);
     logoutBtn?.addEventListener('click', () => {
       localStorage.removeItem(authTokenKey);
       localStorage.removeItem(authRefreshKey);
       account = { authenticated: false, paid: false };
       updateAccountUi();
+      setAuthMode('login');
     });
 
     captureAuthFromUrl();
-    refreshAccount();
+    setAuthMode('signup');
+    refreshAppConfig().then(() => {
+      setAuthMode(authMode);
+      return refreshAccount();
+    });
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>\"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
